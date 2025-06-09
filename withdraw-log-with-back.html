@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>سجل السحب</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f1f1f1;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+    }
+    header {
+      background-color: #28a745;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+    }
+    main {
+      padding: 15px;
+    }
+    .entry {
+      background: white;
+      margin-bottom: 15px;
+      padding: 10px 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .info {
+      text-align: right;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .status {
+      font-weight: bold;
+      color: #28a745;
+      font-size: 13px;
+      min-width: 80px;
+      text-align: center;
+    }
+    .no-data {
+      text-align: center;
+      color: #888;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+
+<header style="background-color: #28a745; color: white; padding: 15px; text-align: center; font-size: 20px; position: relative;">
+  <span>سجل السحب</span>
+  <button onclick="history.back()" title="withdraw.html"
+    style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    background: transparent; border: none; color: white; font-size: 20px; cursor: pointer;">
+    ←
+  </button>
+</header>
+
+
+<main>
+  <div id="logContainer"></div>
+</main>
+
+<script>
+function renderAllWithdraws() {
+  const container = document.getElementById("logContainer");
+  container.innerHTML = "";
+
+  const allKeys = Object.keys(localStorage).filter(key => key.startsWith("withdrawHistory_"));
+  let allRecords = [];
+
+  allKeys.forEach(key => {
+    const list = JSON.parse(localStorage.getItem(key) || "[]");
+    allRecords = allRecords.concat(list);
+  });
+
+  if (allRecords.length === 0) {
+    container.innerHTML = "<p class='no-data'>لا توجد عمليات سحب مسجلة.</p>";
+    return;
+  }
+
+  allRecords.reverse().forEach(item => {
+    const reviewCode = Math.floor(100000 + Math.random() * 900000);
+    const div = document.createElement("div");
+    div.className = "entry";
+    div.innerHTML = `
+      <div class="info">
+        <div><strong>رقم الهاتف:</strong> ${item.phone}</div>
+        <div><strong>المبلغ بعد الخصم:</strong> ${item.net} جنيه</div>
+        <div><strong>رقم المراجعة:</strong> ${reviewCode}</div>
+        <div><strong>التاريخ والوقت:</strong> ${item.time}</div>
+      </div>
+      <div class="status">مراجعة</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+renderAllWithdraws();
+</script>
+
+</body>
+</html>

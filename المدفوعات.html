@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>المدفوعات</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      direction: rtl;
+      margin: 0;
+    }
+    .payment-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 320px;
+    }
+    .payment-box h2 {
+      margin-bottom: 20px;
+      color: #00c853;
+    }
+    .amount {
+      font-size: 24px;
+      margin: 20px 0;
+      color: #333;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 90%;
+      font-size: 16px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    button {
+      background: #00c853;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .message {
+      font-size: 18px;
+      margin-top: 20px;
+      display: none;
+    }
+    .success {
+      color: #00a000;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="payment-box">
+    <h2>إدفع واستلم الرصيد</h2>
+    <div>المبلغ المراد شحنه:</div>
+    <div class="amount" id="amountDisplay">--</div>
+    
+    <input type="text" id="codeInput" placeholder="ادخل كود الدفع">
+    <button onclick="confirmPayment()">تأكيد الدفع</button>
+
+    <div class="message" id="messageBox"></div>
+  </div>
+
+  
+
+
+<script>
+  const allowedCodes = ["5097854332885461", "5078549678224351", "5031524855795342"];
+  const usedKeyPrefix = "usedPaymentCode_";
+  const storedAmount = parseFloat(localStorage.getItem("rechargeAmount")) || 0;
+
+  document.getElementById("amountDisplay").textContent = `EGP ${storedAmount}`;
+
+  function confirmPayment() {
+    const inputCode = document.getElementById("codeInput").value.trim();
+    const messageBox = document.getElementById("messageBox");
+
+    if (!allowedCodes.includes(inputCode)) {
+      messageBox.textContent = "❌ الكود غير صحيح.";
+      messageBox.className = "message error";
+      messageBox.style.display = "block";
+      return;
+    }
+
+    const usedKey = usedKeyPrefix + inputCode;
+    const alreadyUsed = localStorage.getItem(usedKey);
+    if (alreadyUsed === "true") {
+      messageBox.textContent = "⚠ لقد استخدمت هذا الكود بالفعل.";
+      messageBox.className = "message error";
+      messageBox.style.display = "block";
+      return;
+    }
+
+    let balance = parseFloat(localStorage.getItem("balance")) || 0;
+    balance += storedAmount;
+    localStorage.setItem("balance", balance.toFixed(2));
+    localStorage.setItem(usedKey, "true");
+
+    // 🔐 تسجيل العملية في LocalStorage
+    const operations = JSON.parse(localStorage.getItem("rechargeHistory") || "[]");
+    const now = new Date();
+    const time = now.toLocaleString("ar-EG");
+    operations.push({
+      code: inputCode,
+      amount: storedAmount,
+      time: time
+    });
+    localStorage.setItem("rechargeHistory", JSON.stringify(operations));
+
+    messageBox.textContent = `✅ تم إضافة ${storedAmount} جنيه إلى رصيدك!`;
+    messageBox.className = "message success";
+    messageBox.style.display = "block";
+
+    setTimeout(() => {
+      window.location.href = "products.html";
+    }, 2000);
+  }
+</script>
+
+
+
+
+</body>
+</html>

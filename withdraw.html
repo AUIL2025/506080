@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>سحب الأموال</title>
+  <style>
+    /* ضبط الجسم بحيث يكون بعرض موبايل */
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #fff;
+      margin: 0 auto;
+      padding: 10px;
+      direction: rtl;
+      max-width: 375px;  /* هذا تقريبًا عرض شاشة موبايل */
+      box-sizing: border-box;
+    }
+
+    .header {
+      background-color: #28c76f;
+      color: white;
+      padding: 12px 15px;
+      text-align: center;
+      position: relative;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+    }
+
+    .back-button {
+      position: absolute;
+      left: 15px;
+      top: 12px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .balance-banner {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      overflow: hidden;
+      margin: 15px 0 10px;
+      border-radius: 8px;
+    }
+
+    .balance-banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .balance-text {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    .withdraw-container {
+      padding: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .withdraw-container label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .withdraw-container input {
+      width: 100%;
+      padding: 8px 12px;
+      margin-top: 6px;
+      margin-bottom: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .info {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .withdraw-button {
+      background-color: #28c76f;
+      color: white;
+      width: 100%;
+      padding: 12px 0;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .instructions {
+      margin-top: 18px;
+      background: #f9f9f9;
+      padding: 14px 12px;
+      border-radius: 8px;
+    }
+
+    .instructions h2 {
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .instructions ol {
+      padding-right: 15px;
+    }
+
+    .instructions li {
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  
+  <header class="header" style="display: flex; justify-content: space-between; align-items: center;">
+    <span>سحب الأموال</span>
+    <a href="withdraw-log-with-back.html" title="تابع السحب"
+    style="text-decoration: none; background: white; color: #28c76f; border: none; border-radius: 6px; padding: 6px 10px;
+    display: flex; flex-direction: column; align-items: center; font-size: 13px; cursor: pointer;">
+    <span style="font-size: 18px;">📄</span>
+    <span style="margin-top: 2px;">تابع السحب</span>
+    </a>
+  </header>
+
+
+  <div class="balance-banner">
+    <img src="balance-bg.jpg" alt="رصيد الحساب" />
+    <div class="balance-text" id="balanceDisplay">EGP 0.00</div>
+  </div>
+
+  <div class="withdraw-container">
+    <label>ادخل رقم الحساب</label>
+    <input type="tel" id="accountNumber" placeholder="مثال: 01012345678" />
+
+    <label>مبلغ السحب</label>
+    <input
+      type="number"
+      id="amount"
+      placeholder="الرجاء إدخال مبلغ السحب"
+      oninput="calculateNetAmount()"
+    />
+
+    <p class="info" id="netAmountInfo">
+      المبلغ بعد الخصم: EGP 0.00 | الضريبة: 10%
+    </p>
+
+    <button class="withdraw-button" onclick="submitWithdraw()">سحب الآن</button>
+
+    <div class="instructions">
+      <h2>تعليمات السحب</h2>
+      <ol>
+        <li>الحد الأدنى للسحب هو 100 جنيه.</li>
+        <li>لا يوجد حد أقصى لعدد مرات السحب.</li>
+        <li>يتم خصم 10٪ كرسوم صيانة.</li>
+        <li>تُعالج العمليات خلال 24 ساعة بعد مراجعة القسم المالي.</li>
+        <li>يجب إدخال معلومات الحساب بشكل صحيح.</li>
+      </ol>
+    </div>
+  </div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+function generateReviewCode() {
+  return Math.floor(100000 + Math.random() * 900000);
+}
+
+window.onload = function () {
+  const balance = parseFloat(localStorage.getItem("balance")) || 0;
+  document.getElementById("balanceDisplay").textContent = `EGP ${balance.toFixed(2)}`;
+};
+
+function calculateNetAmount() {
+  const amountInput = document.getElementById("amount");
+  const netAmountInfo = document.getElementById("netAmountInfo");
+  const amount = parseFloat(amountInput.value);
+
+  if (!isNaN(amount) && amount > 0) {
+    const fee = amount * 0.10;
+    const net = amount - fee;
+    netAmountInfo.textContent = `المبلغ بعد الخصم: EGP ${net.toFixed(2)} | الضريبة: 10%`;
+  } else {
+    netAmountInfo.textContent = "المبلغ بعد الخصم: EGP 0.00 | الضريبة: 10%";
+  }
+}
+
+function submitWithdraw() {
+  const accountInput = document.getElementById("accountNumber");
+  const amountInput = document.getElementById("amount");
+  const netAmountInfo = document.getElementById("netAmountInfo");
+
+  const phone = accountInput.value.trim();
+  const amount = parseFloat(amountInput.value);
+
+  if (!/^\d{11}$/.test(phone)) {
+    alert("يرجى إدخال رقم هاتف صحيح مكون من 11 رقمًا");
+    return;
+  }
+
+  if (isNaN(amount) || amount < 100) {
+    alert("❌ الحد الأدنى للسحب هو 100 جنيه");
+    return;
+  }
+
+  const lastWithdraw = parseInt(localStorage.getItem("lastWithdraw_" + phone) || "0");
+  const now = Date.now();
+  const waitTime = 5 * 60 * 1000;
+
+  if (now - lastWithdraw < waitTime) {
+    const remaining = Math.ceil((waitTime - (now - lastWithdraw)) / 1000);
+    alert(`❌ لا يمكنك السحب الآن. الرجاء الانتظار ${Math.ceil(remaining / 60)} دقيقة أخرى.`);
+    return;
+  }
+
+  const fee = amount * 0.10;
+  const net = amount - fee;
+  let balance = parseFloat(localStorage.getItem("balance")) || 0;
+
+  if (balance >= amount) {
+    balance -= amount;
+    localStorage.setItem("balance", balance.toFixed(2));
+    localStorage.setItem("lastWithdraw_" + phone, now.toString());
+    document.getElementById("balanceDisplay").textContent = `EGP ${balance.toFixed(2)}`;
+    netAmountInfo.textContent = `✅ تم السحب بنجاح. المبلغ بعد الخصم: ${net.toFixed(2)} جنيه`;
+    netAmountInfo.style.color = "green";
+
+    // إنشاء سجل للمستخدم
+    const key = "withdrawHistory_" + phone;
+    const history = JSON.parse(localStorage.getItem(key) || "[]");
+    const reviewCode = generateReviewCode();
+
+    history.push({
+      phone: phone,
+      amount: amount,
+      net: net,
+      time: new Date().toLocaleString("ar-EG"),
+      status: "قيد المراجعة",
+      code: reviewCode
+    });
+    localStorage.setItem(key, JSON.stringify(history));
+
+    // إضافة السجل العام لكل المستخدمين أيضاً
+    const allLog = JSON.parse(localStorage.getItem("withdrawHistory_all") || "[]");
+    allLog.push({
+      phone: phone,
+      amount: amount,
+      net: net,
+      time: new Date().toLocaleString("ar-EG"),
+      status: "قيد المراجعة",
+      code: reviewCode
+    });
+    localStorage.setItem("withdrawHistory_all", JSON.stringify(allLog));
+
+    renderWithdrawLog();
+  } else {
+    alert("❌ الرصيد غير كافٍ للسحب");
+  }
+}
+
+
+
+function renderWithdrawLog() {
+  const phone = document.getElementById("accountNumber").value.trim();
+  if (!/^\d{11}$/.test(phone)) return;
+
+  const history = JSON.parse(localStorage.getItem("withdrawHistory_" + phone) || "[]").reverse();
+  const list = document.getElementById("withdrawHistoryList");
+  if (!list) return;
+  list.innerHTML = history.length ? "" : "<p>لا توجد عمليات مسجلة.</p>";
+
+  history.forEach(item => {
+    const div = document.createElement("div");
+    div.style.borderBottom = "1px solid #ddd";
+    div.style.padding = "10px 0";
+    div.innerHTML = `
+      <div><strong>رقم:</strong> ${item.phone}</div>
+      <div><strong>المبلغ:</strong> ${item.amount} جنيه (صافي: ${item.net})</div>
+      <div><strong>الوقت:</strong> ${item.time}</div>
+      <div><strong>رقم المراجعة:</strong> ${item.code}</div>
+      <div><strong>الحالة:</strong> ${item.status}</div>
+    `;
+    list.appendChild(div);
+  });
+}
+</script>
+
+
+
+
+
+</body>
+</html>
